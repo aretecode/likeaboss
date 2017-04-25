@@ -1,0 +1,52 @@
+{
+  "name": "likeaboss",
+  "version": "0.1.0",
+  "description": "export for nodejs or web like a boss, easy, fast, & tiny.",
+  "main": "src/index.js",
+  "keywords": [
+    "export",
+    "module export",
+    "default export",
+    "dynamic export",
+    "typescript export"
+  ],
+  "files": [
+    "src/index.js",
+    "src/from.js",
+    "src/gen.js",
+    "from.js",
+    "gen.js",
+    "index.js"
+  ],
+  "scripts": {
+    "test": "ava --verbose",
+    "bench": "node ./bench/optimized",
+    "bench10": "node ./bench/20",
+    "prepublish": "node ./node_modules/easy-npm-files/exposer.js --copy=true",
+    "_keeping_files_for_now": true,
+    "_postpublish": "node ./node_modules/easy-npm-files/exposer.js --del=true",
+    "_prepublish": "easy-npm-files copy && echo 'cannot use bins with symlinks'"
+  },
+  "author": "James <aretecode@gmail.com>",
+  "homepage": "https://github.com/aretecode/likeaboss#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aretecode/likeaboss.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aretecode/likeaboss/issues"
+  },
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "easy-npm-files": "*",
+    "bench-chain": "0.0.6",
+    "benchmark": "^2.1.4",
+    "doxdox": "^2.0.2",
+    "fliplog": "*",
+    "jsdoc": "^3.4.3",
+    "jsdoc-api": "^3.0.0"
+  },
+  "dependencies": {
+    "tosource": "^1.0.0"
+  }
+}
