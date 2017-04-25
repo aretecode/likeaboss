@@ -1,4 +1,4 @@
-const fliplog = require('fliplog')
+const log = require('fliplog')
 const full = require('./full')
 const optimized = require('./full/index-optimized')
 

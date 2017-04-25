@@ -1,3 +1,4 @@
+let resolve = null
 const from = require('./from')
 
 /**
@@ -21,25 +22,61 @@ class Exports {
    * @since 0.1.0
    * @desc pass in module.exports or window or global or whatnot
    * @param  {module.exports} _exports
+   * @param  {exports} exportsexports
    * @return {Exports} @chainable
    */
-  static export(_exports) {
+  static export(_exports, exportsexports) {
     const ex = new Exports()
-    ex._exports = _exports
+    ex._module = {exports: _exports}
+
+    exportsexports = ex._module.exports
 
     // default fn here, since they are object.assigned in Exports.finish
-    ex._fn = {}
+    ex._fn = ex._module.exports
 
     return ex
   }
 
   /**
    * @since 0.1.0
+   * @desc pass in module
+   * @param  {Module} _module
+   * @param  {exports} exportsexports
+   * @return {Exports} @chainable
+   */
+  static module(_module, exportsexports) {
+    const ex = new Exports()
+
+    // @NOTE this is for when there is no module, e.g. web
+    if (typeof module === 'undefined') {
+      _module = {exports: {}}
+    }
+
+    ex._exports = _module.exports
+
+    // default fn here, since they are object.assigned in Exports.finish
+    ex._fn = _module.exports
+    ex._module = _module
+    // reassign `exports`, not needed
+    // exportsexports = _module.exports
+    // ex._module = _module
+
+    return ex
+  }
+
+
+  /**
+   * @alias main
+   * @since 0.1.0
    * @param  {Function | Object} func
    * @return {Exports} @chainable
    */
   fn(func) {
     this._fn = func
+    return this
+  }
+  main(any) {
+    this._fn = any
     return this
   }
 
@@ -88,19 +125,19 @@ class Exports {
       path = ''
     }
 
-    let _exports = this._exports
+    let _exports = this._fn
 
     if (path.includes('/')) {
       const prop = path.split('/').pop()
-      this._exports[prop] = {}
-      _exports = this._exports[prop]
+      this._fn[prop] = {}
+      _exports = this._fn[prop]
     }
 
     const resolved = this._dir + (path === '' ? '' : path + '/')
 
     for (let n = 0; n < names.length; n++) {
       const name = names[n]
-      _exports[name] = require(`${resolved}${name}`)
+      _exports[name] = require(`${resolved}${name}`) // eslint-disable-line
     }
 
     return this
@@ -113,20 +150,29 @@ class Exports {
    * @return {Exports} @chainable
    */
   dynamics(path, names) {
+    // so we only include it for dynamics
+    if (resolve === null) {
+      resolve = require('path').resolve
+    }
+
     // when path is empty, single argument
     if (Array.isArray(path)) {
       names = path
       path = ''
     }
 
-    let _exports = this._exports
-
+    // setup paths
+    // @example
+    //    exports.plugins.eh.Moose
+    let _exports = this._fn
+    let step
     if (path.includes('/')) {
-      const prop = path.split('/').pop()
-      this._exports[prop] = {}
-      _exports = this._exports[prop]
+      step = path.split('/').pop()
+      this._fn[step] = {}
+      _exports = _exports[step]
     }
 
+    // const resolved = this._dir + (path === '' ? '' : path + '/')
     const resolved = this._dir + (path === '' ? '' : path + '/')
 
     for (let n = 0; n < names.length; n++) {
@@ -147,13 +193,27 @@ class Exports {
         name = name.path
       }
 
-      Object.defineProperty(_exports, propName, {
-        configurable: false,
+      const descriptor = {
+        configurable: true,
         enumerable: true,
+        // eslint-disable-next-line
         get() {
-          return require(`${resolved}${name}`) // eslint-disable-line
+          const resolvedPath = resolve(resolved, name)
+          return require(resolvedPath) // eslint-disable-line
         },
-      })
+      }
+
+      /**
+       * @NOTE when defining on this._fn, Object.assign calls the getter.
+       */
+      Object.defineProperty(_exports, propName, descriptor)
+
+      // @NOTE: storing module fixes this
+      // so create as needed
+      // if (step === undefined)
+      //   Object.defineProperty(this._fn, propName, descriptor)
+      // else
+      //   Object.defineProperty(this._fn[step], propName, descriptor)
     }
 
     return this
@@ -180,21 +240,14 @@ class Exports {
    * @return {Object} Object used for module.exports
    */
   end() {
-    const _export = Object.assign(this._fn, this._exports)
+    this._fn.default = this._fn
+    this._fn.__esModule = true
 
-    _export.__esModule = true
-    _export.default = _export
+    // needs that reference to the original module
+    // or else this is on an empty obj
+    this._module.exports = this._fn
 
-    return _export
-  }
-
-  /**
-   * @since 0.1.0
-   * @desc returns as a string, to export the raw code
-   * @return {string} code
-   */
-  toString() {
-    return require('tosource')(this.end())
+    return this._fn
   }
 }
 

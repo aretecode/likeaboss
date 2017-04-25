@@ -3,7 +3,6 @@
 [![NPM version][likeaboss-npm-image]][likeaboss-npm-url]
 [![MIT License][license-image]][license-url]
 [![fliphub][gitter-badge]][gitter-url]
-
 [![fluents][fluents-image]][fluents-url]
 
 [likeaboss-npm-image]: https://img.shields.io/npm/v/likeaboss.svg

@@ -18,7 +18,6 @@ test('can export with everything', t => {
     .statics('', ['Statics'])
     .end()
 
-  console.log('eh?')
   log.stringify(ex).bold('export').echo()
   log.verbose(ex).bold('export').echo()
   log.tosource().data(ex).bold('export').echo()
@@ -93,4 +92,20 @@ test('dynamic exports are never called', t => {
   }
 
   t.pass()
+})
+
+
+test('will work on module exports without reassignment!', t => {
+  const ex = Exports.module(module)
+      .dir(dirname)
+      .statics('', ['Statics'])
+      .end()
+
+  t.true(exports === ex)
+  t.true(ex === module.exports)
+  t.true(exports === module.exports)
+  t.true(Object.is(exports, ex))
+  t.true(Object.is(ex, module.exports))
+  t.deepEqual(ex, module.exports)
+  t.deepEqual(exports, module.exports)
 })
