@@ -14,7 +14,7 @@
 [fluents-image]: https://img.shields.io/badge/⛓-fluent-9659F7.svg
 [fluents-url]: https://www.npmjs.com/package/flipchain
 
-> export like a boss with functions, dynamic and static requires, and module support; easy, fast & tiny.
+> export like a boss with functions, dynamic & static requires, module & web support; easy, fast & tiny.
 
 #### works with:
 - 📼 es5
@@ -37,8 +37,59 @@ npm i likeaboss --save
 
 <img width="442" alt="screen shot 2017-04-24 at 4 48 22 pm" src="https://cloud.githubusercontent.com/assets/4022631/25363323/7860cc44-290e-11e7-9d30-1a183e0d61ea.png">
 
+```js
+const Export = require('likeaboss')
 
-#### ⛓ fluent fn
+const pkg = require('./package.json')
+
+// export directly on the module without module.exports
+// or do `exports = module.exports = ` when using .export
+Export
+  .module(module)
+
+  // main export to be decorated
+  .main(ClassOrFunction)
+
+  // export for web usage when needed
+  .web('your-lib-name')
+
+  // load dynamic
+  .dir(__dirname + '/your-dist-folder')
+
+  // and all other props you want to use
+  .props({version: pkg.version})
+
+  // only `required` when used
+  .dynamics([
+    {name: 'PluginEh', path: '/PluginEh'},
+    {name: 'PluginOh', path: '/PluginOh'},
+  ])
+
+  // finish
+  .end()
+```
+
+### dynamics
+
+[see the output](#output)
+
+only used when the "import"er / client does
+
+```js
+import {PluginEh} from 'your-lib'
+```
+
+or
+```js
+ import ClassOrFunction from 'your-lib'
+ const {PluginEh} = ClassOrFunction
+```
+
+
+## [🕳 diving deeper examples](./examples)
+
+
+#### ⛓ fluent function export
 
 ```js
 const Export = require('likeaboss')
@@ -79,6 +130,7 @@ exports = module.exports = Export.export(module.exports)
   .end()
 ```
 
+
 ###### 🦐 importing:
 
 > requires `./eh/src/Boss.js`
@@ -96,7 +148,7 @@ exports = module.exports = Export.export(module.exports)
 
 
 
-#### object fn with requires
+#### object function with requires
 
 > same as with fluent, but using object syntax
 
@@ -117,6 +169,15 @@ exports = module.exports = Export.from({
   },
 })
 ```
+
+## module
+
+> no need to reassign exports and modules ([exports] is optional 2nd arg)
+
+```js
+Exports.module(module).props({Canada}).end()
+```
+
 
 # 👽 exports
 > file size (~700 bytes)
@@ -178,12 +239,13 @@ fluent x 20,434 ops/sec ±3.52% (73 runs sampled)
 - `console.log({})`: ~ ⏲ 35000ms / 35ms
 - fluent: ~ ⏲ 1300 microseconds / 1.3ms
 - optimized: ~ ⏲ 400 microseconds  / .4ms
-- `module.exports = {}`: ~ ⏲ 200 microseconds / .2ms
+- `exports = module.exports = ...`: ~ ⏲ 100-200 microseconds / .1ms-.2ms
 
 
 <!-- NMD(new module definition(s)) -->
 
-# [🏭 output](./examples/example-output-pseudo.js)
+# 🏭
+### [output](./examples/example-output-pseudo.js)
 
 > example generated output pseudo code
 
